@@ -8,7 +8,7 @@ ifndef::imagesdir[:imagesdir: images]
 ifndef::sourcedir[:sourcedir: ../../main/java]
 :toclevels: 4
 
-= Accounts Quarkus
+= Accounts Vertx
 
 image:https://img.shields.io/badge/crabzilla.v0.5.1-orange.svg[link="https://github.com/crabzilla/crabzilla"]
 https://github.com/crabzilla/accounts-vertx/actions/workflows/blank.yml[image:https://github.com/crabzilla/accounts-vertx/actions/workflows/blank.yml/badge.svg[CI]]
