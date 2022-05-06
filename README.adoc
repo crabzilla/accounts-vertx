@@ -1,0 +1,103 @@
+:sourcedir: src/main/java
+:source-highlighter: highlightjs
+:highlightjsdir: highlight
+:highlightjs-theme: rainbow
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+:toclevels: 4
+
+= Accounts Quarkus
+
+image:https://img.shields.io/badge/crabzilla.v0.4.9-orange.svg[link="https://github.com/crabzilla/crabzilla"]
+https://github.com/rodolfodpk/accounts-quarkus/actions/workflows/blank.yml[image:https://github.com/crabzilla/accounts-quarkus/actions/workflows/blank.yml/badge.svg[CI]]
+https://codecov.io/gh/crabzilla/accounts-quarkus[image:https://codecov.io/gh/crabzilla/accounts/branch/main/graph/badge.svg?token=3XOohR8F9d[codecov]]
+
+This is an example of an application using https://github.com/crabzilla/crabzilla[Crabzilla] with https://vertx.io/[Vertx]
+
+== https://eventmodeling.org/posts/what-is-event-modeling/[Eventmodeling]
+
+image::accounts.drawio.png[Overview]
+
+== Requirements
+
+* Java 11
+* Maven
+* Docker compose
+
+== Building
+
+1 - Start Postgres:
+```
+docker-compose up
+```
+
+2 - Build it, running both unit and integration tests:
+```
+mvn clean install
+```
+
+== Running
+
+1 - Start Postgres if no already started:
+```
+docker-compose up
+```
+
+2 - Run it:
+```
+mvn compile exec:java
+```
+
+=== Transfer test
+
+Open an account 1 with 110.00 and 2 with 0.00 then make a 100.00 transfer from account 1 to 2:
+
+```
+docker run --network host -i loadimpact/k6 run - <./k6/transfer.js
+```
+
+=== Stress test
+
+Opening many accounts with 1000 virtual users during 60 seconds:
+
+```
+docker run --network host -i loadimpact/k6 run --vus 1000 --duration 60s - <./k6/open-many-accounts.js
+```
+
+And you will see something like:
+
+```
+         /\      |‾‾| /‾‾/   /‾‾/
+     /\  /  \     |  |/  /   /  /
+    /  \/    \    |     (   /   ‾‾\
+   /          \   |  |\  \ |  (‾)  |
+  / __________ \  |__| \__\ \_____/ .io
+
+  execution: local
+     script: -
+     output: -
+
+  scenarios: (100.00%) 1 scenario, 1000 max VUs, 1m30s max duration (incl. graceful stop):
+           * default: 1000 looping VUs for 1m0s (gracefulStop: 30s)
+
+     data_received..................: 73 MB  1.2 MB/s
+     data_sent......................: 40 MB  662 kB/s
+     http_req_blocked...............: avg=136.6µs  min=905ns    med=2.44µs   max=143.51ms p(90)=3.85µs   p(95)=5.44µs
+     http_req_connecting............: avg=126.86µs min=0s       med=0s       max=143.48ms p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=400.31ms min=247.89ms med=412.89ms max=1.6s     p(90)=493.05ms p(95)=519.8ms
+       { expected_response:true }...: avg=400.31ms min=247.89ms med=412.89ms max=1.6s     p(90)=493.05ms p(95)=519.8ms
+     http_req_failed................: 0.00%  ✓ 0          ✗ 149892
+     http_req_receiving.............: avg=52.97µs  min=12.58µs  med=30.14µs  max=27.18ms  p(90)=74.23µs  p(95)=128.07µs
+     http_req_sending...............: avg=58.91µs  min=6.81µs   med=14.85µs  max=118.76ms p(90)=25.13µs  p(95)=34.21µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=400.19ms min=247.83ms med=412.83ms max=1.6s     p(90)=492.96ms p(95)=519.69ms
+     http_reqs......................: 149892 2478.86634/s
+     iteration_duration.............: avg=400.91ms min=248.26ms med=413.17ms max=1.74s    p(90)=493.45ms p(95)=520.14ms
+     iterations.....................: 149892 2478.86634/s
+     vus............................: 1000   min=1000     max=1000
+     vus_max........................: 1000   min=1000     max=1000
+
+```
+
