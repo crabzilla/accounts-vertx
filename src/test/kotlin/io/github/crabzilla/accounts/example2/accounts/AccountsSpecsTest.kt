@@ -1,16 +1,17 @@
-package io.github.crabzilla.accounts
+package io.github.crabzilla.accounts.example2.accounts
 
-import io.github.crabzilla.accounts.domain.accounts.Account
-import io.github.crabzilla.accounts.domain.accounts.AccountBalanceNotEnough
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.DepositMoney
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.OpenAccount
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.AccountOpened
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.MoneyDeposited
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.MoneyWithdrawn
-import io.github.crabzilla.accounts.domain.accounts.DepositExceeded
-import io.github.crabzilla.accounts.domain.accounts.accountConfig
+
 import io.github.crabzilla.core.FeatureSpecification
+import io.github.crabzilla.example2.accounts.Account
+import io.github.crabzilla.example2.accounts.AccountBalanceNotEnough
+import io.github.crabzilla.example2.accounts.AccountCommand
+import io.github.crabzilla.example2.accounts.AccountCommand.DepositMoney
+import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
+import io.github.crabzilla.example2.accounts.AccountEvent.AccountOpened
+import io.github.crabzilla.example2.accounts.AccountEvent.MoneyDeposited
+import io.github.crabzilla.example2.accounts.AccountEvent.MoneyWithdrawn
+import io.github.crabzilla.example2.accounts.DepositExceeded
+import io.github.crabzilla.example2.accounts.featureComponent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -22,7 +23,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when opening an account`() {
-    FeatureSpecification(accountConfig)
+    FeatureSpecification(featureComponent)
       .whenCommand(OpenAccount(id, "cpf1", "person1"))
       .then { it.state() shouldBe Account(id, "cpf1", "person1") }
       .then { it.events() shouldBe listOf(AccountOpened(id, "cpf1", "person1")) }
@@ -30,7 +31,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when depositing $2000`() {
-    FeatureSpecification(accountConfig)
+    FeatureSpecification(featureComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .whenCommand(DepositMoney(2000.00))
       .then { it.state() shouldBe Account(id, "cpf1", "person1", 2000.00) }
@@ -44,7 +45,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when depositing $2500`() {
-    FeatureSpecification(accountConfig)
+    FeatureSpecification(featureComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .then { it.state() shouldBe Account(id, "cpf1", "person1", 0.00) }
       .then {
@@ -57,7 +58,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when withdrawing 100 from an account with balance = 110`() {
-    FeatureSpecification(accountConfig)
+    FeatureSpecification(featureComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .whenCommand(DepositMoney(110.00))
       .whenCommand(AccountCommand.WithdrawMoney(100.00))
@@ -73,7 +74,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when withdrawing 100 from an account with balance = 50`() {
-    FeatureSpecification(accountConfig)
+    FeatureSpecification(featureComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .then { it.state() shouldBe Account(id, "cpf1", "person1", 0.00) }
       .then {

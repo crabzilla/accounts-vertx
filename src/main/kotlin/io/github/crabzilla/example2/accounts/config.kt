@@ -1,12 +1,12 @@
-package io.github.crabzilla.accounts.domain.accounts
+package io.github.crabzilla.example2.accounts
 
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.DepositMoney
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.OpenAccount
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.WithdrawMoney
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.AccountOpened
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.MoneyDeposited
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.MoneyWithdrawn
 import io.github.crabzilla.core.FeatureComponent
+import io.github.crabzilla.example2.accounts.AccountCommand.DepositMoney
+import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
+import io.github.crabzilla.example2.accounts.AccountCommand.WithdrawMoney
+import io.github.crabzilla.example2.accounts.AccountEvent.AccountOpened
+import io.github.crabzilla.example2.accounts.AccountEvent.MoneyDeposited
+import io.github.crabzilla.example2.accounts.AccountEvent.MoneyWithdrawn
 import io.github.crabzilla.example2.kotlinx.javaModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -23,13 +23,13 @@ val accountModule = SerializersModule {
       subclass(WithdrawMoney::class, WithdrawMoney.serializer())
     }
     polymorphic(AccountEvent::class) {
-      subclass(AccountOpened::class, AccountOpened.serializer())
+      subclass(AccountOpened::class, AccountEvent.AccountOpened.serializer())
       subclass(MoneyDeposited::class, MoneyDeposited.serializer())
       subclass(MoneyWithdrawn::class, MoneyWithdrawn.serializer())
     }
 }
 
-val accountConfig = FeatureComponent(
+val featureComponent = FeatureComponent(
   Account::class,
   AccountCommand::class,
   AccountEvent::class,

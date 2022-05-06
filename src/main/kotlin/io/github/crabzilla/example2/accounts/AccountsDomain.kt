@@ -1,14 +1,14 @@
-package io.github.crabzilla.accounts.domain.accounts
+package io.github.crabzilla.example2.accounts
 
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.DepositMoney
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.OpenAccount
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.WithdrawMoney
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.AccountOpened
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.MoneyDeposited
-import io.github.crabzilla.accounts.domain.accounts.AccountEvent.MoneyWithdrawn
 import io.github.crabzilla.core.CommandHandler
 import io.github.crabzilla.core.EventHandler
 import io.github.crabzilla.core.FeatureSession
+import io.github.crabzilla.example2.accounts.AccountCommand.DepositMoney
+import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
+import io.github.crabzilla.example2.accounts.AccountCommand.WithdrawMoney
+import io.github.crabzilla.example2.accounts.AccountEvent.AccountOpened
+import io.github.crabzilla.example2.accounts.AccountEvent.MoneyDeposited
+import io.github.crabzilla.example2.accounts.AccountEvent.MoneyWithdrawn
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,15 +19,12 @@ sealed class AccountEvent {
   @Serializable
   @SerialName("AccountOpened")
   data class AccountOpened(@Contextual val id: UUID, val cpf: String, val name: String) : AccountEvent()
-
   @Serializable
   @SerialName("MoneyDeposited")
   data class MoneyDeposited(val amount: Double, val finalBalance: Double) : AccountEvent()
-
   @Serializable
   @SerialName("MoneyWithdrawn")
   data class MoneyWithdrawn(val amount: Double, val finalBalance: Double) : AccountEvent()
-
 }
 
 @Serializable
@@ -35,15 +32,12 @@ sealed class AccountCommand {
   @Serializable
   @SerialName("OpenAccount")
   data class OpenAccount(@Contextual val id: UUID, val cpf: String, val name: String) : AccountCommand()
-
   @Serializable
   @SerialName("DepositMoney")
   data class DepositMoney(val amount: Double) : AccountCommand()
-
   @Serializable
   @SerialName("WithdrawMoney")
   data class WithdrawMoney(val amount: Double) : AccountCommand()
-
 }
 
 @Serializable
@@ -75,34 +69,23 @@ class AccountBalanceNotEnough(id: UUID) : IllegalStateException("Account $id doe
 class DepositExceeded(amount: Double) : IllegalStateException("Cannot deposit more than $amount")
 
 class AccountCommandHandler : CommandHandler<Account, AccountCommand, AccountEvent>(accountEventHandler) {
-
   companion object {
-
     private const val LIMIT = 2000.00
-
     private fun open(id: UUID, cpf: String, name: String): List<AccountEvent> {
       return listOf(AccountOpened(id = id, cpf, name))
     }
-
     private fun Account.deposit(amount: Double): List<AccountEvent> {
       if (amount > LIMIT) {
         throw DepositExceeded(LIMIT)
       }
       return listOf(MoneyDeposited(amount, balance + amount))
     }
-
     private fun Account.withdraw(amount: Double): List<AccountEvent> {
       if (balance < amount) throw AccountBalanceNotEnough(id)
       return listOf(MoneyWithdrawn(amount, balance - amount))
     }
-
   }
-
-  override fun handleCommand(
-    command: AccountCommand,
-    state: Account?,
-  )
-          : FeatureSession<Account, AccountEvent> {
+  override fun handleCommand(command: AccountCommand, state: Account?): FeatureSession<Account, AccountEvent> {
     return when (command) {
       is OpenAccount -> {
         if (state != null) throw AccountAlreadyExists(command.id)

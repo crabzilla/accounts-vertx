@@ -3,15 +3,12 @@ package io.github.crabzilla.example2.accounts
 import io.github.crabzilla.CrabzillaContext
 import io.github.crabzilla.example2.FeatureResource
 import io.github.crabzilla.example2.FeatureResource.Companion.ID_PARAM
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.DepositMoney
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.OpenAccount
-import io.github.crabzilla.accounts.domain.accounts.AccountCommand.WithdrawMoney
-import io.github.crabzilla.accounts.domain.accounts.accountConfig
-import io.github.crabzilla.accounts.domain.accounts.accountModule
+import io.github.crabzilla.example2.accounts.AccountCommand.DepositMoney
+import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
+import io.github.crabzilla.example2.accounts.AccountCommand.WithdrawMoney
 import io.github.crabzilla.kotlinx.KotlinxJsonObjectSerDer
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Promise
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -30,8 +27,8 @@ class AccountsVerticle: AbstractVerticle() {
 
     val crabzilla = CrabzillaContext.new(vertx, config())
     val json = Json { serializersModule = accountModule }
-    val serDer = KotlinxJsonObjectSerDer(json, accountConfig)
-    val controller = crabzilla.featureController(accountConfig, serDer)
+    val serDer = KotlinxJsonObjectSerDer(json, featureComponent)
+    val controller = crabzilla.featureController(featureComponent, serDer)
     val featureResource = FeatureResource(controller)
 
     val router = Router.router(vertx)
@@ -40,7 +37,8 @@ class AccountsVerticle: AbstractVerticle() {
       .put("/accounts/:$ID_PARAM")
       .handler {
         featureResource.handle(it)
-        { (metadata, body) -> OpenAccount(metadata.stateId, body.getString("cpf"), body.getString("name")) }
+        { (metadata, body) -> OpenAccount(metadata.stateId, body.getString("cpf"), body.getString("name"))
+        }
       }
     router
       .put("/accounts/:$ID_PARAM/deposit")
