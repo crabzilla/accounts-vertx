@@ -49,7 +49,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.github.crabzilla</groupId>
+      <groupId>io.github.crabzilla.crabzilla</groupId>
       <artifactId>crabzilla-json-kotlinx</artifactId>
       <version>${crabzilla.version}</version>
     </dependency>
