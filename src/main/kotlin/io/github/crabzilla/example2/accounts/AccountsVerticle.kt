@@ -57,7 +57,6 @@ class AccountsVerticle: AbstractVerticle() {
       .listen(8080) { http ->
         if (http.succeeded()) {
           startPromise.complete()
-          println("Deployed")
           log.info("HTTP server started on port 8080")
         } else {
           startPromise.fail(http.cause())

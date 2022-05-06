@@ -25,15 +25,13 @@ class MainVerticle : AbstractVerticle() {
         .put("username", "user1")
         .put("password", "pwd1")
 
-    println("Config ${config.encodePrettily()}")
-
-    println("Will deploy accounts verticle")
+    log.info("Config ${config.encodePrettily()}")
 
     val opt = DeploymentOptions().setConfig(config).setInstances(cores / 2)
 
     vertx.deployVerticle(AccountsVerticle::class.java.name, opt)
       .onSuccess {
-        println("Ok")
+        log.info("Deployed")
         startPromise.complete()
       }
       .onFailure {
