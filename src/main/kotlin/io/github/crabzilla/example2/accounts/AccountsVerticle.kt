@@ -27,8 +27,9 @@ class AccountsVerticle: AbstractVerticle() {
 
     val crabzilla = CrabzillaContext.new(vertx, config())
     val json = Json { serializersModule = accountModule }
-    val serDer = KotlinxJsonObjectSerDer(json, featureComponent)
-    val controller = crabzilla.featureController(featureComponent, serDer)
+    val serDer = KotlinxJsonObjectSerDer(json, accountsComponent)
+    val controller = crabzilla.featureController(accountsComponent, serDer)
+    // yes, boilerplate. But waiting for Kotlin context receivers to implement framework free DI
     val featureResource = FeatureResource(controller)
 
     val router = Router.router(vertx)
