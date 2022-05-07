@@ -24,6 +24,8 @@ internal class FeatureResource<S: Any, C: Any, E: Any>(
       .onFailure { errorHandler(ctx, it) }
   }
 
+  // TODO add a handle with built in deserialization of the command
+
   private fun requestHandler(ctx: RoutingContext) : Pair<CommandMetadata, JsonObject> {
     val id = UUID.fromString(ctx.request().getParam(ID_PARAM))
     val metadata = CommandMetadata.new(id)

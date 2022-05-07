@@ -1,23 +1,23 @@
 package io.github.crabzilla.example2
 
-import io.github.crabzilla.example2.accounts.AccountsVerticle
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
-import io.vertx.core.Promise
 import io.vertx.core.json.JsonObject
+import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @ExperimentalSerializationApi
-class MainVerticle : AbstractVerticle() {
+class MainVerticle : CoroutineVerticle() {
 
   companion object {
-    private val log: Logger = LoggerFactory.getLogger(AccountsVerticle::class.java)
+    private val log: Logger = LoggerFactory.getLogger(MainVerticle::class.java)
     private val cores = Runtime.getRuntime().availableProcessors()
   }
 
-  override fun start(startPromise: Promise<Void>) {
+  // TODO https://vertx.io/blog/unit-and-integration-tests/ to test with Rest Assured
+
+  override suspend fun start() {
 
     val config: JsonObject =
       JsonObject()
@@ -29,15 +29,9 @@ class MainVerticle : AbstractVerticle() {
 
     val opt = DeploymentOptions().setConfig(config).setInstances(cores / 2)
 
-    vertx.deployVerticle(AccountsVerticle::class.java.name, opt)
-      .onSuccess {
-        log.info("Deployed")
-        startPromise.complete()
-      }
-      .onFailure {
-        it.printStackTrace()
-        startPromise.fail(it)
-      }
+    vertx.deployVerticle(WebVerticle::class.java.name, opt)
+
+    log.info("Deployed")
 
   }
 }
