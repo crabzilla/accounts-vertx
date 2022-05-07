@@ -29,7 +29,7 @@ val accountModule = SerializersModule {
     }
 }
 
-val featureComponent = FeatureComponent(
+val accountsComponent = FeatureComponent(
   Account::class,
   AccountCommand::class,
   AccountEvent::class,

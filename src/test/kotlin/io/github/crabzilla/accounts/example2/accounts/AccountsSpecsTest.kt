@@ -11,7 +11,7 @@ import io.github.crabzilla.example2.accounts.AccountEvent.AccountOpened
 import io.github.crabzilla.example2.accounts.AccountEvent.MoneyDeposited
 import io.github.crabzilla.example2.accounts.AccountEvent.MoneyWithdrawn
 import io.github.crabzilla.example2.accounts.DepositExceeded
-import io.github.crabzilla.example2.accounts.featureComponent
+import io.github.crabzilla.example2.accounts.accountsComponent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -23,7 +23,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when opening an account`() {
-    FeatureSpecification(featureComponent)
+    FeatureSpecification(accountsComponent)
       .whenCommand(OpenAccount(id, "cpf1", "person1"))
       .then { it.state() shouldBe Account(id, "cpf1", "person1") }
       .then { it.events() shouldBe listOf(AccountOpened(id, "cpf1", "person1")) }
@@ -31,7 +31,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when depositing $2000`() {
-    FeatureSpecification(featureComponent)
+    FeatureSpecification(accountsComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .whenCommand(DepositMoney(2000.00))
       .then { it.state() shouldBe Account(id, "cpf1", "person1", 2000.00) }
@@ -45,7 +45,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when depositing $2500`() {
-    FeatureSpecification(featureComponent)
+    FeatureSpecification(accountsComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .then { it.state() shouldBe Account(id, "cpf1", "person1", 0.00) }
       .then {
@@ -58,7 +58,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when withdrawing 100 from an account with balance = 110`() {
-    FeatureSpecification(featureComponent)
+    FeatureSpecification(accountsComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .whenCommand(DepositMoney(110.00))
       .whenCommand(AccountCommand.WithdrawMoney(100.00))
@@ -74,7 +74,7 @@ class AccountsSpecsTest : AnnotationSpec() {
 
   @Test
   fun `when withdrawing 100 from an account with balance = 50`() {
-    FeatureSpecification(featureComponent)
+    FeatureSpecification(accountsComponent)
       .givenEvents(AccountOpened(id, "cpf1", "person1"))
       .then { it.state() shouldBe Account(id, "cpf1", "person1", 0.00) }
       .then {
