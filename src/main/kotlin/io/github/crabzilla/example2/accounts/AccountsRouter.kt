@@ -31,10 +31,10 @@ class AccountsRouter(private val vertx: Vertx, private val config: JsonObject) {
         }
       }
     router
-      .put("/:${FeatureResource.ID_PARAM}/deposit")
+      .post("/:${FeatureResource.ID_PARAM}/deposit")
       .handler { featureResource.handle(it) }
     router
-      .put("/:${FeatureResource.ID_PARAM}/withdraw")
+      .post("/:${FeatureResource.ID_PARAM}/withdraw")
       .handler { featureResource.handle(it) }
     return router
   }
