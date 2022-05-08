@@ -3,14 +3,16 @@ package io.github.crabzilla.example2
 import io.github.crabzilla.command.CommandMetadata
 import io.github.crabzilla.command.CommandSideEffect
 import io.github.crabzilla.command.FeatureController
+import io.github.crabzilla.kotlinx.KotlinxJsonObjectSerDer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
 internal class FeatureResource<S: Any, C: Any, E: Any>(
-  private val featureController: FeatureController<S, C, E>
-)
+  private val featureController: FeatureController<S, C, E>,
+  private val serDer: KotlinxJsonObjectSerDer<S, C, E>
+  )
 {
   companion object {
     const val ID_PARAM: String = "id"
@@ -24,7 +26,13 @@ internal class FeatureResource<S: Any, C: Any, E: Any>(
       .onFailure { errorHandler(ctx, it) }
   }
 
-  // TODO add a handle with built in deserialization of the command
+  fun handle(ctx: RoutingContext) {
+    val (metadata, body) = requestHandler(ctx)
+    val command = serDer.commandFromJson(body)
+    featureController.handle(metadata, command)
+      .onSuccess { successHandler(ctx, it) }
+      .onFailure { errorHandler(ctx, it) }
+  }
 
   private fun requestHandler(ctx: RoutingContext) : Pair<CommandMetadata, JsonObject> {
     val id = UUID.fromString(ctx.request().getParam(ID_PARAM))

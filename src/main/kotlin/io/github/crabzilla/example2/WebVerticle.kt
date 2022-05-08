@@ -12,7 +12,7 @@ class WebVerticle : CoroutineVerticle() {
 
     val router = router(vertx)
 
-    router.mountSubRouter("/cats", AccountsRouter(vertx, config).router())
+    router.mountSubRouter("/accounts", AccountsRouter(vertx, config).router())
     // TODO transfers
 
     vertx.createHttpServer()

@@ -2,9 +2,7 @@ package io.github.crabzilla.example2.accounts
 
 import io.github.crabzilla.CrabzillaContext
 import io.github.crabzilla.example2.FeatureResource
-import io.github.crabzilla.example2.accounts.AccountCommand.DepositMoney
 import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
-import io.github.crabzilla.example2.accounts.AccountCommand.WithdrawMoney
 import io.github.crabzilla.kotlinx.KotlinxJsonObjectSerDer
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
@@ -21,29 +19,23 @@ class AccountsRouter(private val vertx: Vertx, private val config: JsonObject) {
       val serDer = KotlinxJsonObjectSerDer(json, accountsComponent)
       val controller = crabzilla.featureController(accountsComponent, serDer)
       // yes, boilerplate. Waiting for Kotlin context receivers to implement framework free DI
-      return FeatureResource(controller)
+      return FeatureResource(controller, serDer)
     }
     val featureResource = resource()
     val router = Router.router(vertx)
     router.route().handler(BodyHandler.create())
     router
-      .put("/accounts/:${FeatureResource.ID_PARAM}")
-      .handler {
-        featureResource.handle(it)
-        { (metadata, body) ->
+      .put("/:${FeatureResource.ID_PARAM}")
+      .handler { featureResource.handle(it) { (metadata, body) ->
           OpenAccount(metadata.stateId, body.getString("cpf"), body.getString("name"))
         }
       }
     router
-      .put("/accounts/:${FeatureResource.ID_PARAM}/deposit")
-      .handler {
-        featureResource.handle(it) { (_, body) -> DepositMoney(body.getDouble("amount")) }
-      }
+      .put("/:${FeatureResource.ID_PARAM}/deposit")
+      .handler { featureResource.handle(it) }
     router
-      .put("/accounts/:${FeatureResource.ID_PARAM}/withdraw")
-      .handler {
-        featureResource.handle(it) { (_, body) -> WithdrawMoney(body.getDouble("amount")) }
-      }
+      .put("/:${FeatureResource.ID_PARAM}/withdraw")
+      .handler { featureResource.handle(it) }
     return router
   }
 
