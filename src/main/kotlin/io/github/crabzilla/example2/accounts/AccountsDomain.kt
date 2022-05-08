@@ -40,10 +40,8 @@ sealed class AccountCommand {
   data class WithdrawMoney(val amount: Double) : AccountCommand()
 }
 
-@Serializable
-@SerialName("Account")
 data class Account(
-  @Contextual val id: UUID,
+  val id: UUID,
   val cpf: String,
   val name: String,
   val balance: Double = 0.00

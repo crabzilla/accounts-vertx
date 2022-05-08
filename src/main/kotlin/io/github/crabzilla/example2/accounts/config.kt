@@ -14,10 +14,7 @@ import kotlinx.serialization.modules.polymorphic
 @kotlinx.serialization.ExperimentalSerializationApi
 val accountModule = SerializersModule {
     include(javaModule)
-    polymorphic(Account::class) {
-      subclass(Account::class, Account.serializer())
-    }
-    polymorphic(AccountCommand::class) {
+     polymorphic(AccountCommand::class) {
       subclass(OpenAccount::class, OpenAccount.serializer())
       subclass(DepositMoney::class, DepositMoney.serializer())
       subclass(WithdrawMoney::class, WithdrawMoney.serializer())
