@@ -20,7 +20,7 @@
     <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
 
-    <crabzilla.version>v0.5.2</crabzilla.version>
+    <crabzilla.version>v0.5.3</crabzilla.version>
     <vertx.version>4.2.7</vertx.version>
     <mutiny.version>2.21.0</mutiny.version>
     <junit-jupiter.version>5.8.2</junit-jupiter.version>
@@ -202,6 +202,7 @@
           <arguments>
             <argument>run</argument>
             <argument>${main.verticle}</argument>
+            <argument>-conf ./src/main/conf/config.json</argument>
           </arguments>
         </configuration>
       </plugin>
@@ -320,6 +321,5 @@
       </plugin>
     </plugins>
   </build>
-
 
 </project>

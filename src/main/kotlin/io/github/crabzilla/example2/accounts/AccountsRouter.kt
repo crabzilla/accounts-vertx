@@ -1,6 +1,6 @@
 package io.github.crabzilla.example2.accounts
 
-import io.github.crabzilla.CrabzillaContext
+import io.github.crabzilla.stack.CrabzillaContext
 import io.github.crabzilla.example2.FeatureResource
 import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
 import io.github.crabzilla.kotlinx.KotlinxJsonObjectSerDer
@@ -17,17 +17,18 @@ class AccountsRouter(private val vertx: Vertx, private val config: JsonObject) {
       val crabzilla = CrabzillaContext.new(vertx, config)
       val json = Json { serializersModule = accountModule }
       val serDer = KotlinxJsonObjectSerDer(json, accountsComponent)
-      val controller = crabzilla.featureController(accountsComponent, serDer)
+      val service = crabzilla.featureService(accountsComponent, serDer)
       // yes, boilerplate. Waiting for Kotlin context receivers to implement framework free DI
-      return FeatureResource(controller, serDer)
+      return FeatureResource(service, serDer)
     }
     val featureResource = resource()
     val router = Router.router(vertx)
     router.route().handler(BodyHandler.create())
     router
       .put("/:${FeatureResource.ID_PARAM}")
-      .handler { featureResource.handle(it) { (metadata, body) ->
-          OpenAccount(metadata.stateId, body.getString("cpf"), body.getString("name"))
+      .handler {
+        featureResource.handle(it) { stateId, body ->
+          OpenAccount(stateId, body.getString("cpf"), body.getString("name"))
         }
       }
     router

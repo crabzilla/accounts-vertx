@@ -1,7 +1,6 @@
 package io.github.crabzilla.example2
 
 import io.vertx.core.DeploymentOptions
-import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.slf4j.Logger
@@ -18,12 +17,6 @@ class MainVerticle : CoroutineVerticle() {
   // TODO https://vertx.io/blog/unit-and-integration-tests/ to test with Rest Assured
 
   override suspend fun start() {
-
-    val config: JsonObject =
-      JsonObject()
-        .put("url", "postgresql://localhost:5432/accounts")
-        .put("username", "user1")
-        .put("password", "pwd1")
 
     log.info("Config ${config.encodePrettily()}")
 

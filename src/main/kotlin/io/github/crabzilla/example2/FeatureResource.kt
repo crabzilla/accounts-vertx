@@ -1,16 +1,16 @@
 package io.github.crabzilla.example2
 
-import io.github.crabzilla.command.CommandMetadata
-import io.github.crabzilla.command.CommandSideEffect
-import io.github.crabzilla.command.FeatureController
 import io.github.crabzilla.kotlinx.KotlinxJsonObjectSerDer
+import io.github.crabzilla.stack.EventRecord
+import io.github.crabzilla.stack.command.FeatureService
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
 internal class FeatureResource<S: Any, C: Any, E: Any>(
-  private val featureController: FeatureController<S, C, E>,
+  private val featureController: FeatureService<S, C, E>,
   private val serDer: KotlinxJsonObjectSerDer<S, C, E>
   )
 {
@@ -19,29 +19,28 @@ internal class FeatureResource<S: Any, C: Any, E: Any>(
     private val log = LoggerFactory.getLogger(FeatureResource::class.java)
   }
 
-  fun handle(ctx: RoutingContext, commandFactory: (Pair<CommandMetadata, JsonObject>) -> C) {
-    val (metadata, body) = requestHandler(ctx)
-    featureController.handle(metadata, commandFactory.invoke(Pair(metadata, body)))
+  fun handle(ctx: RoutingContext, commandFactory: (UUID, JsonObject) -> C) {
+    val (id, body) = extractIdAndBody(ctx)
+    featureController.handle(id, commandFactory.invoke(id, body))
       .onSuccess { successHandler(ctx, it) }
       .onFailure { errorHandler(ctx, it) }
   }
 
   fun handle(ctx: RoutingContext) {
-    val (metadata, body) = requestHandler(ctx)
+    val (id, body) = extractIdAndBody(ctx)
     val command = serDer.commandFromJson(body)
-    featureController.handle(metadata, command)
+    featureController.handle(id, command)
       .onSuccess { successHandler(ctx, it) }
       .onFailure { errorHandler(ctx, it) }
   }
 
-  private fun requestHandler(ctx: RoutingContext) : Pair<CommandMetadata, JsonObject> {
+  private fun extractIdAndBody(ctx: RoutingContext) : Pair<UUID, JsonObject> {
     val id = UUID.fromString(ctx.request().getParam(ID_PARAM))
-    val metadata = CommandMetadata.new(id)
-    return Pair(metadata, ctx.bodyAsJson)
+    return Pair(id, ctx.bodyAsJson)
   }
 
-  private fun successHandler(ctx: RoutingContext, data: CommandSideEffect) {
-    ctx.response().setStatusCode(201).end(data.toJsonArray().encode())
+  private fun successHandler(ctx: RoutingContext, data: List<EventRecord>) {
+    ctx.response().setStatusCode(201).end(JsonArray(data.map { it.toJsonObject()}).encode())
   }
 
   private fun errorHandler(ctx: RoutingContext, error: Throwable) {
