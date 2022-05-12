@@ -1,5 +1,5 @@
 {
-  "http.port" : 8081,
+  "http.port" : 8080,
   "url": "postgresql://localhost:5432/accounts",
   "username": "user1",
   "password": "pwd1"

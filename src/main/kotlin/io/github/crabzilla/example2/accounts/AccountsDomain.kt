@@ -1,6 +1,7 @@
 package io.github.crabzilla.example2.accounts
 
 import io.github.crabzilla.core.CommandHandler
+import io.github.crabzilla.core.CommandValidator
 import io.github.crabzilla.core.EventHandler
 import io.github.crabzilla.core.FeatureSession
 import io.github.crabzilla.example2.accounts.AccountCommand.DepositMoney
@@ -61,6 +62,10 @@ val accountEventHandler = EventHandler<Account, AccountEvent> { state, event ->
   }
 }
 
+//val accountValidator = CommandValidator<AccountCommand> {
+//  listOf()
+//}
+
 class AccountAlreadyExists(id: UUID) : IllegalArgumentException("Account $id already exists")
 class AccountNotFound : NullPointerException("Account not found")
 class AccountBalanceNotEnough(id: UUID) : IllegalStateException("Account $id doesn't have enough balance")
@@ -94,7 +99,7 @@ class AccountCommandHandler : CommandHandler<Account, AccountCommand, AccountEve
         when (command) {
           is DepositMoney -> with(state).execute { it.deposit(command.amount) }
           is WithdrawMoney -> with(state).execute { it.withdraw(command.amount) }
-          else -> throw java.lang.IllegalArgumentException(command::class.java.name)
+          else -> throw java.lang.IllegalStateException(command::class.java.name)
         }
       }
     }

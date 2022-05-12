@@ -4,7 +4,7 @@ CREATE DATABASE accounts OWNER user1;
 
 CREATE TABLE commands (
   state_id UUID NOT NULL,
-  causation_id UUID NOT NULL UNIQUE,
+  causation_id UUID NOT NULL,
   cmd_payload JSON NOT NULL
 );
 

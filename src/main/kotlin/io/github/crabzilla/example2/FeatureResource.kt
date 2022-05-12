@@ -1,18 +1,21 @@
 package io.github.crabzilla.example2
 
-import io.github.crabzilla.kotlinx.KotlinxJsonObjectSerDer
 import io.github.crabzilla.stack.EventRecord
+import io.github.crabzilla.stack.EventRecord.Companion.toJsonArray
+import io.github.crabzilla.stack.JsonObjectSerDer
+import io.github.crabzilla.stack.command.FeatureException.BusinessException
+import io.github.crabzilla.stack.command.FeatureException.ConcurrencyException
+import io.github.crabzilla.stack.command.FeatureException.ValidationException
 import io.github.crabzilla.stack.command.FeatureService
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
 internal class FeatureResource<S: Any, C: Any, E: Any>(
-  private val featureController: FeatureService<S, C, E>,
-  private val serDer: KotlinxJsonObjectSerDer<S, C, E>
-  )
+  private val featureService: FeatureService<S, C, E>,
+  private val serDer: JsonObjectSerDer<S, C, E>
+)
 {
   companion object {
     const val ID_PARAM: String = "id"
@@ -21,15 +24,18 @@ internal class FeatureResource<S: Any, C: Any, E: Any>(
 
   fun handle(ctx: RoutingContext, commandFactory: (UUID, JsonObject) -> C) {
     val (id, body) = extractIdAndBody(ctx)
-    featureController.handle(id, commandFactory.invoke(id, body))
+    log.trace("id {}, body {}", id, body.encode())
+    featureService.handle(id, commandFactory.invoke(id, body))
       .onSuccess { successHandler(ctx, it) }
       .onFailure { errorHandler(ctx, it) }
   }
 
-  fun handle(ctx: RoutingContext) {
+  fun handle(ctx: RoutingContext, commandType: String) {
     val (id, body) = extractIdAndBody(ctx)
-    val command = serDer.commandFromJson(body)
-    featureController.handle(id, command)
+    log.trace("id {}, body {}", id, body.encode())
+    val command = serDer.commandFromJson(body.put("type", commandType))
+    log.trace("command {}", command)
+    featureService.handle(id, command)
       .onSuccess { successHandler(ctx, it) }
       .onFailure { errorHandler(ctx, it) }
   }
@@ -40,17 +46,18 @@ internal class FeatureResource<S: Any, C: Any, E: Any>(
   }
 
   private fun successHandler(ctx: RoutingContext, data: List<EventRecord>) {
-    ctx.response().setStatusCode(201).end(JsonArray(data.map { it.toJsonObject()}).encode())
+    log.debug("Success")
+    ctx.response().setStatusCode(201).end(data.toJsonArray().encode())
   }
 
   private fun errorHandler(ctx: RoutingContext, error: Throwable) {
-    log.error(ctx.request().absoluteURI(), error)
-    // a silly convention, but hopefully effective for this demo
+    log.error("Error {}", error.localizedMessage)
+    // a naive convention, but hopefully effective for this demo
     when (error.cause) {
-      is IllegalArgumentException -> ctx.response().setStatusCode(400).setStatusMessage(error.message).end()
-      is NullPointerException -> ctx.response().setStatusCode(404).setStatusMessage(error.message).end()
-      is IllegalStateException -> ctx.response().setStatusCode(409).setStatusMessage(error.message).end()
-      else -> ctx.response().setStatusCode(500).setStatusMessage(error.message).end()
+      is ValidationException -> ctx.response().setStatusCode(400).setStatusMessage(error.localizedMessage).end()
+      is ConcurrencyException -> ctx.response().setStatusCode(409).setStatusMessage(error.localizedMessage).end()
+      is BusinessException -> ctx.response().setStatusCode(422).setStatusMessage(error.localizedMessage).end()
+      else -> ctx.response().setStatusCode(500).end()
     }
   }
 
