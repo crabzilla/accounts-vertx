@@ -62,9 +62,9 @@ val accountEventHandler = EventHandler<Account, AccountEvent> { state, event ->
   }
 }
 
-//val accountValidator = CommandValidator<AccountCommand> {
-//  listOf()
-//}
+val accountValidator = CommandValidator<AccountCommand> {
+  listOf()
+}
 
 class AccountAlreadyExists(id: UUID) : IllegalArgumentException("Account $id already exists")
 class AccountNotFound : NullPointerException("Account not found")

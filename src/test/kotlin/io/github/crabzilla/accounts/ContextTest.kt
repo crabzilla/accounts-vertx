@@ -58,7 +58,7 @@ fun main() {
          println(e.size)
         with(accountEventHandler) {
           x()
-          val s = handleEvent(null, AccountOpened(UUID.randomUUID(), "cpf", "name"))
+          val s = handle(null, AccountOpened(UUID.randomUUID(), "cpf", "name"))
           println(s)
         }
       }

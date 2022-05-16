@@ -17,8 +17,9 @@ class WebVerticle : CoroutineVerticle() {
       val json = Json { serializersModule = accountModule }
       val serDer = KotlinxJsonObjectSerDer(json, accountsComponent)
       val service = featureService(accountsComponent, serDer)
-      with(FeatureResource(service, serDer)) {
-        router.mountSubRouter("/accounts", AccountsRouter().router())
+      val commandsRoutes = mapOf(Pair("deposit", "DepositMoney"), Pair("withdraw", "WithdrawMoney"))
+      with(FeatureResource(service, serDer, commandsRoutes)) {
+        router.route("/accounts/*").subRouter(AccountsRouter.router())
       }
     }
     vertx.createHttpServer()
