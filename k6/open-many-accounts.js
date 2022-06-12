@@ -4,7 +4,7 @@ export default function () {
   const id = create_UUID()
   const payload = JSON.stringify({cpf: id, name: id});
   const params = { headers: { 'Content-Type': 'application/json' } };
-  let r = http.put('http://127.0.0.1:8080/accounts/' + id, payload, params);
+  let r = http.put('http://0.0.0.0:8080/accounts/' + id, payload, params);
 };
 
 function create_UUID(){
