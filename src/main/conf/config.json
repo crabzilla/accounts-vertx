@@ -1,6 +1,6 @@
 {
-  "http.port" : 8081,
-  "url": "postgresql://localhost:5432/accounts",
+  "http.port" : 8080,
+  "url": "postgresql://0.0.0.0:5432/accounts",
   "username": "user1",
   "password": "pwd1"
 }
