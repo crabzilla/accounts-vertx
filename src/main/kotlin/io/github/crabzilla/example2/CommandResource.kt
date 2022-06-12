@@ -1,26 +1,23 @@
 package io.github.crabzilla.example2
 
-import io.github.crabzilla.stack.EventRecord
-import io.github.crabzilla.stack.EventRecord.Companion.toJsonArray
+import io.github.crabzilla.stack.EventMetadata
 import io.github.crabzilla.stack.JsonObjectSerDer
-import io.github.crabzilla.stack.command.FeatureException.BusinessException
-import io.github.crabzilla.stack.command.FeatureException.ConcurrencyException
-import io.github.crabzilla.stack.command.FeatureException.ValidationException
-import io.github.crabzilla.stack.command.FeatureService
+import io.github.crabzilla.stack.command.CommandServiceApi
+import io.github.crabzilla.stack.command.CommandServiceException.*
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
-internal class FeatureResource<S: Any, C: Any, E: Any>(
-  private val featureService: FeatureService<S, C, E>,
+class CommandResource<S: Any, C: Any, E: Any>(
+  private val featureService: CommandServiceApi<C>,
   private val serDer: JsonObjectSerDer<S, C, E>,
   private val commandRoutes: Map<String, String>
 ) {
   companion object {
     const val ID_PARAM: String = "id"
     const val COMMAND_ROUTE = "commandRoute"
-    private val log = LoggerFactory.getLogger(FeatureResource::class.java)
+    private val log = LoggerFactory.getLogger(CommandResource::class.java)
   }
   fun handle(ctx: RoutingContext, commandFactory: (UUID, JsonObject) -> C) {
     val (id, _, body) = extractIdAndBody(ctx)
@@ -49,8 +46,8 @@ internal class FeatureResource<S: Any, C: Any, E: Any>(
       commandRoutes[ctx.request().getParam(COMMAND_ROUTE)],
       ctx.body().asJsonObject())
   }
-  private fun successHandler(ctx: RoutingContext, data: List<EventRecord>) {
-    ctx.response().setStatusCode(201).end(data.toJsonArray().encode())
+  private fun successHandler(ctx: RoutingContext, data: EventMetadata) {
+    ctx.response().setStatusCode(201).end(data.toJsonObject().encode())
   }
   private fun errorHandler(ctx: RoutingContext, error: Throwable) {
     log.error("Error {}", error.localizedMessage)

@@ -2,8 +2,8 @@ version: '3.1'
 
 services:
 
-  postgress:
-    image: postgres:13.5-alpine
+  postgres:
+    image: postgres:latest
     environment:
       POSTGRES_USER: user1
       POSTGRES_PASSWORD: pwd1
@@ -11,9 +11,7 @@ services:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
-    restart: unless-stopped
-    networks:
-      - accounts-vertx
+    restart: "no"
 
 #  kafka:
 #    image: bashj79/kafka-kraft
@@ -24,11 +22,3 @@ services:
 #      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
 #      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 #      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-
-networks:
-  accounts-vertx:
-    ipam:
-      config:
-        - subnet: 172.19.183.1/25
-      driver:
-        default

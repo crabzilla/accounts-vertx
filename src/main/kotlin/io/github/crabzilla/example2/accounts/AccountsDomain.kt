@@ -88,7 +88,7 @@ class AccountCommandHandler : CommandHandler<Account, AccountCommand, AccountEve
       return listOf(MoneyWithdrawn(amount, balance - amount))
     }
   }
-  override fun handleCommand(command: AccountCommand, state: Account?): FeatureSession<Account, AccountEvent> {
+  override fun handle(command: AccountCommand, state: Account?): FeatureSession<Account, AccountEvent> {
     return when (command) {
       is OpenAccount -> {
         if (state != null) throw AccountAlreadyExists(command.id)
@@ -99,7 +99,7 @@ class AccountCommandHandler : CommandHandler<Account, AccountCommand, AccountEve
         when (command) {
           is DepositMoney -> with(state).execute { it.deposit(command.amount) }
           is WithdrawMoney -> with(state).execute { it.withdraw(command.amount) }
-          else -> throw java.lang.IllegalStateException(command::class.java.name)
+          else -> throw IllegalStateException(command::class.java.name)
         }
       }
     }

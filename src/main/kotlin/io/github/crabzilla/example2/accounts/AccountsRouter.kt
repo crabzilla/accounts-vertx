@@ -1,18 +1,16 @@
 package io.github.crabzilla.example2.accounts
 
-import io.github.crabzilla.example2.FeatureResource
-import io.github.crabzilla.example2.FeatureResource.Companion.COMMAND_ROUTE
-import io.github.crabzilla.example2.FeatureResource.Companion.ID_PARAM
+import io.github.crabzilla.example2.CommandResource
+import io.github.crabzilla.example2.CommandResource.Companion.COMMAND_ROUTE
+import io.github.crabzilla.example2.CommandResource.Companion.ID_PARAM
 import io.github.crabzilla.example2.accounts.AccountCommand.OpenAccount
 import io.github.crabzilla.stack.CrabzillaContext
 import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.BodyHandler
 
 object AccountsRouter {
-  context(CrabzillaContext, FeatureResource<Account, AccountCommand, AccountEvent>)
+  context(CrabzillaContext, CommandResource<Account, AccountCommand, AccountEvent>)
   fun router(): Router {
     val router = Router.router(vertx())
-    router.route().handler(BodyHandler.create())
     router.put("/:$ID_PARAM")
       .handler {
         handle(it) { stateId, body ->
